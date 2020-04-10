@@ -11,8 +11,8 @@ p_pro = Propagator()
 cuda=0
 
 content_image_path = './images/content1.png'
-style_image_path = './images/content2.png'
-output_image_path = './results/example4.png'
+style_image_path = './images/style1.png'
+output_image_path = './results/example3.png'
 
 if cuda==1:
     p_wct.cuda(0)

@@ -324,7 +324,7 @@ src = '''
 import torch
 import numpy as np
 from PIL import Image
-from cupy.cuda import function
+#from cupy.cuda import function
 from pynvrtc.compiler import Program
 from collections import namedtuple
 

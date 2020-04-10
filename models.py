@@ -71,7 +71,7 @@ class VGGEncoder(nn.Module):
         self.pad4_1 = nn.ReflectionPad2d((1, 1, 1, 1))
         self.conv4_1 = nn.Conv2d(256, 512, 3, 1, 0)
         self.relu4_1 = nn.ReLU(inplace=True)
-        # 28 x 28
+        # /home/jmihali28 x 28
     
     def forward(self, x):
         out = self.conv0(x)
@@ -105,7 +105,7 @@ class VGGEncoder(nn.Module):
         out = self.pad3_1(out)
         out = self.conv3_1(out)
         out = self.relu3_1(out)
-        
+
         if self.level < 4:
             return out, pool1_idx, pool1.size(), pool2_idx, pool2.size()
         

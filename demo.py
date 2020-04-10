@@ -18,7 +18,7 @@ parser.add_argument('--output_image_path', default='./results/example1.png')
 parser.add_argument('--save_intermediate', action='store_true', default=False)
 parser.add_argument('--fast', action='store_true', default=False)
 parser.add_argument('--no_post', action='store_true', default=False)
-parser.add_argument('--cuda', type=int, default=1, help='Enable CUDA.')
+parser.add_argument('--cuda', type=int, default=0, help='Enable CUDA.')
 args = parser.parse_args()
 
 # Load model
@@ -42,7 +42,21 @@ process_stylization.stylization(
     content_seg_path=args.content_seg_path,
     style_seg_path=args.style_seg_path,
     output_image_path=args.output_image_path,
-    cuda=args.cuda,
+    cuda=0,
     save_intermediate=args.save_intermediate,
     no_post=args.no_post
 )
+
+
+"""
+process_stylization.stylization(
+    stylization_module=p_wct,
+    content_image_path=,
+    style_image_path=,
+    output_image_path=,
+    cuda=1,
+    save_intermediate=True,
+    no_post=True
+    
+)
+"""

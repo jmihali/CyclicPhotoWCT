@@ -25,9 +25,9 @@ class PhotoWCT(nn.Module):
     def transform(self, cont_img, styl_img, cont_seg, styl_seg):
         self.__compute_label_info(cont_seg, styl_seg)
 
-        sF4, sF3, sF2, sF1 = self.e4.forward_multiple(styl_img)
+        sF4, sF3, sF2, sF1 = self.e4.forward_multiple(styl_img) # calculates feature maps? style_img ---> feature_maps
 
-        cF4, cpool_idx, cpool1, cpool_idx2, cpool2, cpool_idx3, cpool3 = self.e4(cont_img)
+        cF4, cpool_idx, cpool1, cpool_idx2, cpool2, cpool_idx3, cpool3 = self.e4(cont_img) # calculates
         sF4 = sF4.data.squeeze(0)
         cF4 = cF4.data.squeeze(0)
         # print(cont_seg)

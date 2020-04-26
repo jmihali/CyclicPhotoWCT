@@ -11,7 +11,7 @@ import torchvision.transforms as transforms
 import torchvision.utils as utils
 import torch.nn as nn
 import torch
-from smooth_filter import smooth_filter
+#from smooth_filter import smooth_filter
 
 
 class ReMapping:
@@ -89,7 +89,7 @@ def cyclic_stylization(stylization_module, smoothing_module, content_image_path,
             styl_img = styl_img.cuda(0)
             stylization_module.cuda(0)
 
-        # cont_img = Variable(cont_img, volatile=True)
+        # cont_img = Variable(cont_img, volatile=True)cont_seg
         # styl_img = Variable(styl_img, volatile=True)
 
         cont_seg = np.asarray(cont_seg)
@@ -110,6 +110,8 @@ def cyclic_stylization(stylization_module, smoothing_module, content_image_path,
                 reversed_img = nn.functional.upsample(reversed_img, size=(ch, cw), mode='bilinear')
             utils.save_image(stylized_img.data.cpu().float(), stylized_image_path, nrow=1, padding=0)
             utils.save_image(reversed_img.data.cpu().float(), reversed_image_path, nrow=1, padding=0)
+
+            return stylized_img, reversed_img
 
         else: #the case with smoothing is not modified!!!!
             if save_intermediate:

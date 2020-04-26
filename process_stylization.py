@@ -108,6 +108,9 @@ def stylization(stylization_module, smoothing_module, content_image_path, style_
             if ch != new_ch or cw != new_cw:
                 print("De-resize image: (%d,%d)->(%d,%d)" % (new_cw, new_ch, cw, ch))
                 stylized_img = nn.functional.upsample(stylized_img, size=(ch, cw), mode='bilinear')
+            mse_diff = nn.MSELoss()(cont_img, stylized_img)
+            print("MSE Loss = %.5f" % mse_diff)
+            print("=" * 15)
             utils.save_image(stylized_img.data.cpu().float(), output_image_path, nrow=1, padding=0)
         else:
 

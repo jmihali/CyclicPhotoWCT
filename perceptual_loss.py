@@ -5,7 +5,10 @@ model_dir = os.getcwd() + '/Models/'
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision import transforms
+from torchvision.transforms import ToTensor
+from PIL import Image
+from torch.autograd import Variable
+
 
 
 # vgg definition that conveniently let's you grab the outputs from any layer
@@ -95,10 +98,10 @@ if torch.cuda.is_available():
     vgg.cuda()
 
 
-# my implementation of the perceptual loss function
-class PerceptualLoss(nn.MSELoss):
+# my implementation of the content loss function as an child class of nn.MSELoss
+class ContentLoss(nn.MSELoss):
     def __init__(self, content_layers = ['r42'], content_weights = [1]):
-        super(PerceptualLoss, self).__init__()
+        super(ContentLoss, self).__init__()
         self.content_weights = content_weights
         self.content_layers = content_layers
         self.content_loss_fns = [nn.MSELoss()] * len(content_layers)
@@ -113,52 +116,43 @@ class PerceptualLoss(nn.MSELoss):
         return sum(layer_losses)
 
 
-"""
+class WeightedMseContentLoss(nn.MSELoss): # my implementation of the weighted mse & content loss function as an child class of nn.MSELoss
 
-def reconstruction_loss(input_image, content_image, style_image=None):
-    style_weights = []
-    content_weights = [1]
+    def __init__(self, content_layers = ['r42'], content_weights = [1], mse_loss_weight=100, content_loss_weight=1):
+        super(WeightedMseContentLoss, self).__init__()
+        self.content_weights = content_weights
+        self.content_layers = content_layers
+        self.content_loss_fns = [nn.MSELoss()] * len(content_layers)
+        self.mse_loss_weight = mse_loss_weight
+        self.content_loss_weight = content_loss_weight
+        if torch.cuda.is_available():
+            self.content_loss_fns = [loss_fn.cuda() for loss_fn in self.content_loss_fns]
 
-    content_layers = ['r42']
-    style_layers = []
+    def forward(self, input_image, content_image):
+        # compute optimization targets
+        content_targets = [A.detach() for A in vgg(content_image, self.content_layers)]
+        out = vgg(input_image, self.content_layers)
+        layer_losses = [self.content_weights[a] * self.content_loss_fns[a](A, content_targets[a]) for a, A in enumerate(out)]
+        return self.content_loss_weight*sum(layer_losses) + self.mse_loss_weight*nn.MSELoss()(input_image, content_image)
 
-    loss_layers = style_layers + content_layers
-    loss_fns = [GramMSELoss()] * len(style_layers) + [nn.MSELoss()] * len(content_layers)
 
+
+def mse_loss_images(img1_path, img2_path): # takes the path of two images and determines their mse loss
+    img1 = ToTensor()(Image.open(img1_path))  # unsqueeze to add artificial first dimension
+    img2 = ToTensor()(Image.open(img2_path))  # unsqueeze to add artificial first dimension
+    img1 = Variable(img1.unsqueeze(0))
+    img2 = Variable(img2.unsqueeze(0))
+    return nn.MSELoss()(img1, img2)
+
+def content_loss_images(img1_path, img2_path, content_layers=['r42']): # takes the path of two images and determines their content loss
+    img1 = ToTensor()(Image.open(img1_path))
+    img2 = ToTensor()(Image.open(img2_path))
     if torch.cuda.is_available():
-        loss_fns = [loss_fn.cuda() for loss_fn in loss_fns]
-
-    weights = style_weights + content_weights
-
-    #compute optimization targets
-    style_targets = [GramMatrix()(A).detach() for A in vgg(style_image, style_layers)]
-    content_targets = [A.detach() for A in vgg(content_image, content_layers)]
-    targets = style_targets + content_targets
-
-    out = vgg(input_image, loss_layers)
-    layer_losses = [weights[a] * loss_fns[a](A, targets[a]) for a, A in enumerate(out)]
-    loss = sum(layer_losses)
-
-    return loss
-
-
-
-def perceptual_loss(input_image, content_image):
-    content_weights = [1]
-    content_layers = ['r42']
-
-    content_loss_fns = [nn.MSELoss()] * len(content_layers)
-
-    if torch.cuda.is_available():
-        content_loss_fns = [loss_fn.cuda() for loss_fn in content_loss_fns]
-
-    #compute optimization targets
-    content_targets = [A.detach() for A in vgg(content_image, content_layers)]
-
-    out = vgg(input_image, content_layers)
-    layer_losses = [content_weights[a] * content_loss_fns[a](A, content_targets[a]) for a, A in enumerate(out)]
-    loss = sum(layer_losses)
-
-    return loss
-"""
+        img1 = img1.cuda()
+        img2 = img2.cuda()
+    img1 = Variable(img1.unsqueeze(0))
+    img2 = Variable(img2.unsqueeze(0))
+    img1_fm = vgg(img1, content_layers)[0]
+    img2_fm = vgg(img2, content_layers)[0]
+    return nn.MSELoss()(img1_fm, img2_fm)
 

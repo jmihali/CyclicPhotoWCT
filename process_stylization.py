@@ -6,12 +6,10 @@ from __future__ import print_function
 import time
 import numpy as np
 from PIL import Image
-from torch.autograd import Variable
 import torchvision.transforms as transforms
 import torchvision.utils as utils
 import torch.nn as nn
 import torch
-from smooth_filter import smooth_filter
 
 
 class ReMapping:
@@ -58,7 +56,7 @@ def memory_limit_image_resize(cont_img):
 
 
 def stylization(stylization_module, smoothing_module, content_image_path, style_image_path, content_seg_path,
-                style_seg_path, output_image_path, cuda, save_intermediate, no_post, do_smoothing=False, cont_seg_remapping=None,
+                style_seg_path, output_image_path, cuda, save_intermediate, no_post, cont_seg_remapping=None,
                 styl_seg_remapping=None):
 
     # Load image
@@ -100,55 +98,10 @@ def stylization(stylization_module, smoothing_module, content_image_path, style_
             styl_seg = styl_seg_remapping.process(styl_seg)
 
 
-
-        if not do_smoothing:
-            # I removed the smoothing  part, this is just the stylization part. Does not depent on save_intermediate
-            with Timer("Elapsed time in stylization: %f"):
-                stylized_img = stylization_module.transform(cont_img, styl_img, cont_seg, styl_seg)
-            if ch != new_ch or cw != new_cw:
-                print("De-resize image: (%d,%d)->(%d,%d)" % (new_cw, new_ch, cw, ch))
-                stylized_img = nn.functional.upsample(stylized_img, size=(ch, cw), mode='bilinear')
-            mse_diff = nn.MSELoss()(cont_img, stylized_img)
-            print("MSE Loss = %.5f" % mse_diff)
-            print("=" * 15)
-            utils.save_image(stylized_img.data.cpu().float(), output_image_path, nrow=1, padding=0)
-        else:
-
-            if save_intermediate:
-                with Timer("Elapsed time in stylization: %f"):
-                    stylized_img = stylization_module.transform(cont_img, styl_img, cont_seg, styl_seg)
-                if ch != new_ch or cw != new_cw:
-                    print("De-resize image: (%d,%d)->(%d,%d)" %(new_cw,new_ch,cw,ch))
-                    stylized_img = nn.functional.upsample(stylized_img, size=(ch,cw), mode='bilinear')
-                utils.save_image(stylized_img.data.cpu().float(), output_image_path, nrow=1, padding=0)
-
-
-                with Timer("Elapsed time in propagation: %f"):
-                    out_img = smoothing_module.process(output_image_path, content_image_path)
-                out_img.save(output_image_path)
-
-                if not cuda:
-                    print("NotImplemented: The CPU version of smooth filter has not been implemented currently.")
-                    return
-
-                if no_post is False:
-                    with Timer("Elapsed time in post processing: %f"):
-                        out_img = smooth_filter(output_image_path, content_image_path, f_radius=15, f_edge=1e-1)
-                out_img.save(output_image_path)
-            else:
-                with Timer("Elapsed time in stylization: %f"):
-                    stylized_img = stylization_module.transform(cont_img, styl_img, cont_seg, styl_seg)
-                if ch != new_ch or cw != new_cw:
-                    print("De-resize image: (%d,%d)->(%d,%d)" %(new_cw,new_ch,cw,ch))
-                    stylized_img = nn.functional.upsample(stylized_img, size=(ch,cw), mode='bilinear')
-                grid = utils.make_grid(stylized_img.data, nrow=1, padding=0)
-                ndarr = grid.mul(255).clamp(0, 255).byte().permute(1, 2, 0).cpu().numpy()
-                out_img = Image.fromarray(ndarr)
-
-                with Timer("Elapsed time in propagation: %f"):
-                    out_img = smoothing_module.process(out_img, cont_pilimg)
-
-                if no_post is False:
-                    with Timer("Elapsed time in post processing: %f"):
-                        out_img = smooth_filter(out_img, cont_pilimg, f_radius=15, f_edge=1e-1)
-                out_img.save(output_image_path)
+        with Timer("Elapsed time in stylization: %f"):
+            stylized_img = stylization_module.transform(cont_img, styl_img, cont_seg, styl_seg)
+        if ch != new_ch or cw != new_cw:
+            print("De-resize image: (%d,%d)->(%d,%d)" % (new_cw, new_ch, cw, ch))
+            stylized_img = nn.functional.upsample(stylized_img, size=(ch, cw), mode='bilinear')
+        utils.save_image(stylized_img.data.cpu().float(), output_image_path, nrow=1, padding=0)
+        return stylized_img

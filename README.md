@@ -1,36 +1,18 @@
-[![License CC BY-NC-SA 4.0](https://img.shields.io/badge/license-CC4.0-blue.svg)](https://raw.githubusercontent.com/NVIDIA/FastPhotoStyle/master/LICENSE.md)
-![Python 2.7](https://img.shields.io/badge/python-2.7-green.svg)
-![Python 3.5](https://img.shields.io/badge/python-3.5-green.svg)
+# Cyclic PhotoWCT
 
-## FastPhotoStyle
+## Semester Project Spring 2020
 
-### License
-Copyright (C) 2018 NVIDIA Corporation.  All rights reserved.
-Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+## ETH Zürich - Computer Vision Lab
+![GitHub Logo](/images/ethzlogo.png)
 
-<img src="https://raw.githubusercontent.com/NVIDIA/FastPhotoStyle/master/teaser.png" width="800" title="Teaser results"> 
+###Author: Joan Mihali
 
+This project is based on the work of Li et. al [A Closed-form Solution to Photorealistic Image Stylization](https://arxiv.org/abs/1802.06474) and on its [code](https://github.com/NVIDIA/FastPhotoStyle). 
 
-### What's new
- 
- | Date     | News |
- |----------|--------------|
- |2018-07-25| Migrate to pytorch 0.4.0. For pytorch 0.3.0 user, check out [FastPhotoStyle for pytorch 0.3.0](https://github.com/NVIDIA/FastPhotoStyle/releases/tag/f33e07f). |
- |          | Add a [tutorial](TUTORIAL.md) showing 3 ways of using the FastPhotoStyle algorithm.|
- |2018-07-10| Our paper is accepted by the ECCV 2018 conference!!! | 
+To run the code you need to download the pytorch VGG19-Model from [Simonyan and Zisserman, 2014](https://arxiv.org/abs/1409.1556) and the pretrained PhotoWCT and CyclicPhotoWCT models by running: 
 
+`sh download_models.sh`
 
-### About
+To run a stylization process, run 'main_cyclic.py'.
 
-Given a content photo and a style photo, the code can transfer the style of the style photo to the content photo. The details of the algorithm behind the code is documented in our arxiv paper. Please cite the paper if this code repository is used in your publications.
-
-[A Closed-form Solution to Photorealistic Image Stylization](https://arxiv.org/abs/1802.06474) <br> 
-[Yijun Li (UC Merced)](https://sites.google.com/site/yijunlimaverick/), [Ming-Yu Liu (NVIDIA)](http://mingyuliu.net/), [Xueting Li (UC Merced)](https://sunshineatnoon.github.io/), [Ming-Hsuan Yang (NVIDIA, UC Merced)](http://faculty.ucmerced.edu/mhyang/), [Jan Kautz (NVIDIA)](http://jankautz.com/) <br>
-European Conference on Computer Vision (ECCV), 2018 <br>
-
-
-### Tutorial
-
-Please check out the [tutorial](TUTORIAL.md).
-
-
+To train your own model, download a dataset and store the images in ./dataset/train/ and run 'train_cyclic_model.py'. You can download the dataset that I used to train these models from [here](http://images.cocodataset.org/zips/val2017.zip). 

@@ -1,7 +1,5 @@
-segmentation/
-outputs/
-models/
 results/
+__pychache__/
 images/
 data/
 logs/

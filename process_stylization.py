@@ -56,7 +56,7 @@ def memory_limit_image_resize(cont_img):
 
 
 def stylization(stylization_module, smoothing_module, content_image_path, style_image_path, content_seg_path,
-                style_seg_path, output_image_path, cuda, save_intermediate, no_post, cont_seg_remapping=None,
+                style_seg_path, output_image_path, cuda, do_smoothing=False, cont_seg_remapping=None,
                 styl_seg_remapping=None):
 
     # Load image
@@ -98,10 +98,22 @@ def stylization(stylization_module, smoothing_module, content_image_path, style_
             styl_seg = styl_seg_remapping.process(styl_seg)
 
 
+        # apply just photoWCT
         with Timer("Elapsed time in stylization: %f"):
             stylized_img = stylization_module.transform(cont_img, styl_img, cont_seg, styl_seg)
         if ch != new_ch or cw != new_cw:
             print("De-resize image: (%d,%d)->(%d,%d)" % (new_cw, new_ch, cw, ch))
             stylized_img = nn.functional.upsample(stylized_img, size=(ch, cw), mode='bilinear')
         utils.save_image(stylized_img.data.cpu().float(), output_image_path, nrow=1, padding=0)
-        return stylized_img
+
+
+        if not do_smoothing:
+            return stylized_img
+        else: # in case you also want to do the smoothing:
+            with Timer("Elapsed time in propagation: %f"):
+                smoothed_img = smoothing_module.process(output_image_path, content_image_path)
+            smoothed_img.save(output_image_path.replace('.jpg', '') + '_smoothed.jpg')
+            return smoothed_img
+
+
+

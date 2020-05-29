@@ -111,3 +111,4 @@ def stylization(stylization_module, smoothing_module, content_image_path, style_
                 smoothed_img = smoothing_module.process(output_image_path, content_image_path)
             smoothed_img.save(output_image_path.replace('.jpg', '') + '_smoothed.jpg')
             return smoothed_img
+

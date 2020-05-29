@@ -66,6 +66,7 @@ p_pro = Propagator(beta=0.7)
 cuda = torch.cuda.is_available()
 do_smoothing = False  # change this flag if you want to apply or no the smoothing module
 
+
 if cuda:
     p_wct.cuda(0)
 

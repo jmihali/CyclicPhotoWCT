@@ -13,6 +13,18 @@ To run the code you need to download the pytorch VGG19-Model from [Simonyan and 
 
 `sh download_models.sh`
 
-To run a stylization process, run 'main_cyclic.py'.
+For a model with a single mapping for both directions:
 
-To train your own model, download a dataset and store the images in ./dataset/train/ and run 'train_cyclic_model.py'. You can download the dataset that I used to train these models from [here](http://images.cocodataset.org/zips/val2017.zip). 
+    * To run a stylization process, run 'main_cyclic.py'
+    * To train your own model, download a dataset and store the 
+    images in ./dataset/train/ and run 'train_cyclic_model.py'
+
+For a model with two mappings, one for each direction:
+
+    * To run a stylization process, run 'main_cyclic_2maps.py'
+    * To train your own model, download a dataset and store the 
+    images in ./dataset/train/ and run 'train_cyclic_model_2maps.py'. 
+    
+    
+You can download the dataset that I used to train the models from [here](http://images.cocodataset.org/zips/val2017.zip). 
+
